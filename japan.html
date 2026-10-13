@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Hiragana & Katakana</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 py-4 px-6 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="app.returnToMenu()">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md shadow-indigo-200">
+                    <i class="fa-solid fa-language text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight">KanaMaster</h1>
+                    <p class="text-xs text-slate-500">Kuis Hiragana & Katakana</p>
+                </div>
+            </div>
+            <div id="header-stats" class="hidden items-center space-x-4">
+                <div class="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-medium">
+                    Soal: <span id="current-q-num" class="font-bold text-indigo-600">1</span>/<span id="total-q-num">10</span>
+                </div>
+                <div class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span>Skor: <span id="current-score" class="font-bold">0</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-2xl w-full mx-auto p-4 sm:p-6 my-auto flex-grow flex items-center justify-center">
+        
+        <!-- VIEW 1: MAIN MENU -->
+        <section id="menu-view" class="w-full bg-white rounded-3xl shadow-xl shadow-slate-100 p-6 sm:p-8 border border-slate-100 fade-in">
+            <div class="text-center mb-8">
+                <span class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Latih Kemampuanmu</span>
+                <h2 class="text-2xl sm:text-3xl font-bold mt-2 text-slate-900">Pilih Mode Kuis</h2>
+                <p class="text-slate-500 text-sm mt-1">Uji kecepatan dan ketepatan membaca aksara Jepang.</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Mode Huruf -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">1. Kategori Aksara</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="app.setCategory('hiragana')" id="cat-hiragana" class="category-btn border-2 border-indigo-600 bg-indigo-50/50 text-indigo-700 font-semibold p-3.5 rounded-2xl text-sm transition-all flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg font-bold">あ</span>
+                            <span>Hiragana</span>
+                        </button>
+                        <button onclick="app.setCategory('katakana')" id="cat-katakana" class="category-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold p-3.5 rounded-2xl text-sm transition-all flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg font-bold">ア</span>
+                            <span>Katakana</span>
+                        </button>
+                        <button onclick="app.setCategory('both')" id="cat-both" class="category-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold p-3.5 rounded-2xl text-sm transition-all flex flex-col items-center justify-center space-y-1">
+                            <span class="text-lg font-bold">あ/ア</span>
+                            <span>Campuran</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tipe Soal -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">2. Tipe Pertanyaan</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="app.setType('choice')" id="type-choice" class="type-btn border-2 border-indigo-600 bg-indigo-50/50 text-indigo-700 font-semibold p-3.5 rounded-2xl text-sm transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Pilihan Ganda</span>
+                        </button>
+                        <button onclick="app.setType('typing')" id="type-typing" class="type-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold p-3.5 rounded-2xl text-sm transition-all flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-keyboard"></i>
+                            <span>Ketik Romaji</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Jumlah Soal -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">3. Jumlah Soal</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="app.setCount(10)" id="count-10" class="count-btn border-2 border-indigo-600 bg-indigo-50/50 text-indigo-700 font-semibold py-2.5 rounded-xl text-sm transition-all">10</button>
+                        <button onclick="app.setCount(20)" id="count-20" class="count-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition-all">20</button>
+                        <button onclick="app.setCount(30)" id="count-30" class="count-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition-all">30</button>
+                        <button onclick="app.setCount(46)" id="count-46" class="count-btn border-2 border-slate-200 hover:border-slate-300 text-slate-700 font-semibold py-2.5 rounded-xl text-sm transition-all">Semua (46)</button>
+                    </div>
+                </div>
+
+                <!-- Tombol Mulai -->
+                <button onclick="app.startQuiz()" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg shadow-indigo-200 transition-all transform active:scale-95 flex items-center justify-center space-x-2 text-base">
+                    <span>Mulai Kuis Sekarang</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: QUIZ SECTION -->
+        <section id="quiz-view" class="w-full bg-white rounded-3xl shadow-xl shadow-slate-100 p-6 sm:p-8 border border-slate-100 hidden fade-in">
+            <!-- Progress Bar -->
+            <div class="w-full bg-slate-100 rounded-full h-2 mb-6 overflow-hidden">
+                <div id="progress-bar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <!-- Kartu Soal Utama -->
+            <div class="text-center py-6">
+                <span id="question-category-badge" class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Hiragana</span>
+                <div class="my-6">
+                    <span id="question-character" class="text-8xl sm:text-9xl font-bold text-slate-900 tracking-wider block pop-in">あ</span>
+                </div>
+                <p class="text-slate-500 text-sm">Apakah cara baca (romaji) dari huruf di atas?</p>
+            </div>
+
+            <!-- Multiple Choice Container -->
+            <div id="choice-container" class="grid grid-cols-2 gap-3 mt-6">
+                <!-- Pilihan akan di-generate via JS -->
+            </div>
+
+            <!-- Typing Container -->
+            <div id="typing-container" class="mt-6 hidden">
+                <form onsubmit="app.handleTypingSubmit(event)" class="space-y-4">
+                    <input type="text" id="typing-input" autocomplete="off" autocapitalize="none" placeholder="Ketik romaji (cth: a, ka, shi)..." class="w-full border-2 border-slate-200 focus:border-indigo-600 focus:outline-none rounded-2xl px-5 py-4 text-center text-xl font-semibold text-slate-800 transition-all placeholder:text-slate-400 placeholder:text-base">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-2xl shadow-md transition-all">Jawab</button>
+                </form>
+            </div>
+
+            <!-- Feedback / Next Button Area -->
+            <div id="feedback-area" class="mt-6 hidden pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div id="feedback-message" class="font-semibold text-base flex items-center space-x-2">
+                    <!-- Dinamis Benar/Salah -->
+                </div>
+                <button onclick="app.nextQuestion()" class="bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 px-6 rounded-xl text-sm transition-all shadow-sm flex items-center space-x-2">
+                    <span>Lanjut</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 3: RESULT SECTION -->
+        <section id="result-view" class="w-full bg-white rounded-3xl shadow-xl shadow-slate-100 p-6 sm:p-8 border border-slate-100 hidden text-center fade-in">
+            <div class="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-inner mb-4">
+                <i class="fa-solid fa-trophy text-amber-500"></i>
+            </div>
+            
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-900">Kuis Selesai!</h2>
+            <p id="result-subtitle" class="text-slate-500 text-sm mt-1">Kerja bagus! Berikut adalah ringkasan hasil latihanmu.</p>
+
+            <div class="grid grid-cols-2 gap-4 my-8">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Skor Benar</p>
+                    <p id="final-score" class="text-3xl font-bold text-indigo-600 mt-1">0/10</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Akurasi</p>
+                    <p id="final-accuracy" class="text-3xl font-bold text-emerald-600 mt-1">0%</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button onclick="app.restartQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-indigo-200 transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Ulangi Kuis Ini</span>
+                </button>
+                <button onclick="app.returnToMenu()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3.5 px-6 rounded-2xl transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-house"></i>
+                    <span>Kembali ke Menu Utama</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center py-4 text-xs text-slate-400">
+        <p>&copy; 2026 KanaMaster &bull; Belajar Huruf Jepang Jadi Mudah</p>
+    </footer>
+
+    <script>
+        // Data Dasar Kana (Gojuuon Dasar 46 karakter per tipe)
+        const hiraganaData = [
+            { char: 'あ', romaji: 'a', type: 'Hiragana' }, { char: 'い', romaji: 'i', type: 'Hiragana' }, { char: 'う', romaji: 'u', type: 'Hiragana' }, { char: 'え', romaji: 'e', type: 'Hiragana' }, { char: 'お', romaji: 'o', type: 'Hiragana' },
+            { char: 'か', romaji: 'ka', type: 'Hiragana' }, { char: 'き', romaji: 'ki', type: 'Hiragana' }, { char: 'く', romaji: 'ku', type: 'Hiragana' }, { char: 'け', romaji: 'ke', type: 'Hiragana' }, { char: 'こ', romaji: 'ko', type: 'Hiragana' },
+            { char: 'さ', romaji: 'sa', type: 'Hiragana' }, { char: 'し', romaji: 'shi', type: 'Hiragana' }, { char: 'す', romaji: 'su', type: 'Hiragana' }, { char: 'せ', romaji: 'se', type: 'Hiragana' }, { char: 'そ', romaji: 'so', type: 'Hiragana' },
+            { char: 'た', romaji: 'ta', type: 'Hiragana' }, { char: 'ち', romaji: 'chi', type: 'Hiragana' }, { char: 'つ', romaji: 'tsu', type: 'Hiragana' }, { char: 'て', romaji: 'te', type: 'Hiragana' }, { char: 'と', romaji: 'to', type: 'Hiragana' },
+            { char: 'な', romaji: 'na', type: 'Hiragana' }, { char: 'に', romaji: 'ni', type: 'Hiragana' }, { char: 'ぬ', romaji: 'nu', type: 'Hiragana' }, { char: 'ね', romaji: 'ne', type: 'Hiragana' }, { char: 'の', romaji: 'no', type: 'Hiragana' },
+            { char: 'は', romaji: 'ha', type: 'Hiragana' }, { char: 'ひ', romaji: 'hi', type: 'Hiragana' }, { char: 'ふ', romaji: 'fu', type: 'Hiragana' }, { char: 'へ', romaji: 'he', type: 'Hiragana' }, { char: 'ほ', romaji: 'ho', type: 'Hiragana' },
+            { char: 'ま', romaji: 'ma', type: 'Hiragana' }, { char: 'み', romaji: 'mi', type: 'Hiragana' }, { char: 'む', romaji: 'mu', type: 'Hiragana' }, { char: 'め', romaji: 'me', type: 'Hiragana' }, { char: 'も', romaji: 'mo', type: 'Hiragana' },
+            { char: 'や', romaji: 'ya', type: 'Hiragana' }, { char: 'ゆ', romaji: 'yu', type: 'Hiragana' }, { char: 'よ', romaji: 'yo', type: 'Hiragana' },
+            { char: 'ら', romaji: 'ra', type: 'Hiragana' }, { char: 'り', romaji: 'ri', type: 'Hiragana' }, { char: 'る', romaji: 'ru', type: 'Hiragana' }, { char: 'れ', romaji: 're', type: 'Hiragana' }, { char: 'ろ', romaji: 'ro', type: 'Hiragana' },
+            { char: 'わ', romaji: 'wa', type: 'Hiragana' }, { char: 'を', romaji: 'wo', type: 'Hiragana' }, { char: 'ん', romaji: 'n', type: 'Hiragana' }
+        ];
+
+        const katakanaData = [
+            { char: 'ア', romaji: 'a', type: 'Katakana' }, { char: 'イ', romaji: 'i', type: 'Katakana' }, { char: 'ウ', romaji: 'u', type: 'Katakana' }, { char: 'エ', romaji: 'e', type: 'Katakana' }, { char: 'オ', romaji: 'o', type: 'Katakana' },
+            { char: 'カ', romaji: 'ka', type: 'Katakana' }, { char: 'キ', romaji: 'ki', type: 'Katakana' }, { char: 'ク', romaji: 'ku', type: 'Katakana' }, { char: 'ケ', romaji: 'ke', type: 'Katakana' }, { char: 'コ', romaji: 'ko', type: 'Katakana' },
+            { char: 'サ', romaji: 'sa', type: 'Katakana' }, { char: 'シ', romaji: 'shi', type: 'Katakana' }, { char: 'ス', romaji: 'su', type: 'Katakana' }, { char: 'セ', romaji: 'se', type: 'Katakana' }, { char: 'ソ', romaji: 'so', type: 'Katakana' },
+            { char: 'タ', romaji: 'ta', type: 'Katakana' }, { char: 'チ', romaji: 'chi', type: 'Katakana' }, { char: 'ツ', romaji: 'tsu', type: 'Katakana' }, { char: 'テ', romaji: 'te', type: 'Katakana' }, { char: 'ト', romaji: 'to', type: 'Katakana' },
+            { char: 'ナ', romaji: 'na', type: 'Katakana' }, { char: 'ニ', romaji: 'ni', type: 'Katakana' }, { char: 'ヌ', romaji: 'nu', type: 'Katakana' }, { char: 'ネ', romaji: 'ne', type: 'Katakana' }, { char: 'ノ', romaji: 'no', type: 'Katakana' },
+            { char: 'ハ', romaji: 'ha', type: 'Katakana' }, { char: 'ヒ', romaji: 'hi', type: 'Katakana' }, { char: 'フ', romaji: 'fu', type: 'Katakana' }, { char: 'ヘ', romaji: 'he', type: 'Katakana' }, { char: 'ホ', romaji: 'ho', type: 'Katakana' },
+            { char: 'マ', romaji: 'ma', type: 'Katakana' }, { char: 'ミ', romaji: 'mi', type: 'Katakana' }, { char: 'ム', romaji: 'mu', type: 'Katakana' }, { char: 'メ', romaji: 'me', type: 'Katakana' }, { char: 'モ', romaji: 'mo', type: 'Katakana' },
+            { char: 'ヤ', romaji: 'ya', type: 'Katakana' }, { char: 'ユ', romaji: 'yu', type: 'Katakana' }, { char: 'ヨ', romaji: 'yo', type: 'Katakana' },
+            { char: 'ラ', romaji: 'ra', type: 'Katakana' }, { char: 'リ', romaji: 'ri', type: 'Katakana' }, { char: 'ル', romaji: 'ru', type: 'Katakana' }, { char: 'レ', romaji: 're', type: 'Katakana' }, { char: 'ロ', romaji: 'ro', type: 'Katakana' },
+            { char: 'ワ', romaji: 'wa', type: 'Katakana' }, { char: 'ヲ', romaji: 'wo', type: 'Katakana' }, { char: 'ン', romaji: 'n', type: 'Katakana' }
+        ];
+
+        // State Aplikasi
+        const appState = {
+            category: 'hiragana', // hiragana, katakana, both
+            type: 'choice',       // choice, typing
+            count: 10,            // 10, 20, 30, 46
+            currentIndex: 0,
+            score: 0,
+            questions: [],
+            currentQuestion: null,
+            isAnswered: false
+        };
+
+        const app = {
+            setCategory(cat) {
+                appState.category = cat;
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+                    btn.classList.add('border-slate-200', 'text-slate-700');
+                });
+                const active = document.getElementById(`cat-${cat}`);
+                active.classList.remove('border-slate-200', 'text-slate-700');
+                active.classList.add('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+            },
+
+            setType(type) {
+                appState.type = type;
+                document.querySelectorAll('.type-btn').forEach(btn => {
+                    btn.classList.remove('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+                    btn.classList.add('border-slate-200', 'text-slate-700');
+                });
+                const active = document.getElementById(`type-${type}`);
+                active.classList.remove('border-slate-200', 'text-slate-700');
+                active.classList.add('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+            },
+
+            setCount(cnt) {
+                appState.count = cnt;
+                document.querySelectorAll('.count-btn').forEach(btn => {
+                    btn.classList.remove('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+                    btn.classList.add('border-slate-200', 'text-slate-700');
+                });
+                const active = document.getElementById(`count-${cnt}`);
+                active.classList.remove('border-slate-200', 'text-slate-700');
+                active.classList.add('border-indigo-600', 'bg-indigo-50/50', 'text-indigo-700');
+            },
+
+            startQuiz() {
+                // Siapkan pool data berdasarkan kategori
+                let pool = [];
+                if (appState.category === 'hiragana') pool = [...hiraganaData];
+                else if (appState.category === 'katakana') pool = [...katakanaData];
+                else pool = [...hiraganaData, ...katakanaData];
+
+                // Acak pool
+                pool.sort(() => Math.random() - 0.5);
+
+                // Ambil sejumlah count
+                const actualCount = Math.min(appState.count, pool.length);
+                appState.questions = pool.slice(0, actualCount);
+                appState.currentIndex = 0;
+                appState.score = 0;
+
+                // Ubah tampilan view
+                document.getElementById('menu-view').classList.add('hidden');
+                document.getElementById('result-view').classList.add('hidden');
+                document.getElementById('quiz-view').classList.remove('hidden');
+                document.getElementById('header-stats').classList.remove('hidden');
+                document.getElementById('header-stats').classList.add('flex');
+
+                this.loadQuestion();
+            },
+
+            loadQuestion() {
+                appState.isAnswered = false;
+                const q = appState.questions[appState.currentIndex];
+                appState.currentQuestion = q;
+
+                // Update Header Status
+                document.getElementById('current-q-num').innerText = appState.currentIndex + 1;
+                document.getElementById('total-q-num').innerText = appState.questions.length;
+                document.getElementById('current-score').innerText = appState.score;
+
+                // Progress Bar
+                const progressPct = ((appState.currentIndex) / appState.questions.length) * 100;
+                document.getElementById('progress-bar').style.width = `${progressPct}%`;
+
+                // Badge & Karakter
+                const badge = document.getElementById('question-category-badge');
+                badge.innerText = q.type;
+                if (q.type === 'Hiragana') {
+                    badge.className = 'bg-rose-50 text-rose-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider';
+                } else {
+                    badge.className = 'bg-sky-50 text-sky-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider';
+                }
+
+                const charEl = document.getElementById('question-character');
+                charEl.classList.remove('pop-in');
+                void charEl.offsetWidth; // Trigger reflow untuk animasi
+                charEl.innerText = q.char;
+                charEl.classList.add('pop-in');
+
+                // Sembunyikan feedback area
+                document.getElementById('feedback-area').classList.add('hidden');
+
+                if (appState.type === 'choice') {
+                    document.getElementById('choice-container').classList.remove('hidden');
+                    document.getElementById('typing-container').classList.add('hidden');
+                    this.renderChoices(q);
+                } else {
+                    document.getElementById('choice-container').classList.add('hidden');
+                    document.getElementById('typing-container').classList.remove('hidden');
+                    const input = document.getElementById('typing-input');
+                    input.value = '';
+                    input.disabled = false;
+                    input.focus();
+                }
+            },
+
+            renderChoices(correctQ) {
+                const container = document.getElementById('choice-container');
+                container.innerHTML = '';
+
+                // Ambil 3 pilihan salah unik
+                let pool = appState.category === 'hiragana' ? hiraganaData : (appState.category === 'katakana' ? katakanaData : [...hiraganaData, ...katakanaData]);
+                let wrongPool = pool.filter(item => item.romaji !== correctQ.romaji);
+                wrongPool.sort(() => Math.random() - 0.5);
+
+                let choices = [correctQ.romaji];
+                for (let i = 0; i < 3 && i < wrongPool.length; i++) {
+                    choices.push(wrongPool[i].romaji);
+                }
+
+                // Acak posisi pilihan
+                choices.sort(() => Math.random() - 0.5);
+
+                choices.forEach(romaji => {
+                    const btn = document.createElement('button');
+                    btn.className = 'bg-slate-50 hover:bg-slate-100 border-2 border-slate-200 text-slate-800 font-bold py-4 rounded-2xl text-lg transition-all transform active:scale-95 shadow-sm';
+                    btn.innerText = romaji;
+                    btn.onclick = () => this.handleChoiceAnswer(romaji, correctQ.romaji, btn);
+                    container.appendChild(btn);
+                });
+            },
+
+            handleChoiceAnswer(selected, correct, btnElement) {
+                if (appState.isAnswered) return;
+                appState.isAnswered = true;
+
+                const allButtons = document.querySelectorAll('#choice-container button');
+                allButtons.forEach(b => b.disabled = true);
+
+                const feedbackArea = document.getElementById('feedback-area');
+                const feedbackMsg = document.getElementById('feedback-message');
+
+                if (selected === correct) {
+                    appState.score++;
+                    btnElement.className = 'bg-emerald-500 border-2 border-emerald-600 text-white font-bold py-4 rounded-2xl text-lg shadow-md';
+                    feedbackMsg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> <span class="text-emerald-700">Benar! Hebat!</span>`;
+                } else {
+                    btnElement.className = 'bg-rose-500 border-2 border-rose-600 text-white font-bold py-4 rounded-2xl text-lg shadow-md';
+                    // Tandai yang benar
+                    allButtons.forEach(b => {
+                        if (b.innerText === correct) {
+                            b.className = 'bg-emerald-500 border-2 border-emerald-600 text-white font-bold py-4 rounded-2xl text-lg shadow-md';
+                        }
+                    });
+                    feedbackMsg.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 text-xl"></i> <span class="text-rose-700">Kurang tepat, yang benar: <b>${correct}</b></span>`;
+                }
+
+                document.getElementById('current-score').innerText = appState.score;
+                feedbackArea.classList.remove('hidden');
+            },
+
+            handleTypingSubmit(event) {
+                event.preventDefault();
+                if (appState.isAnswered) return;
+
+                const input = document.getElementById('typing-input');
+                const userVal = input.value.trim().toLowerCase();
+                if (!userVal) return;
+
+                appState.isAnswered = true;
+                input.disabled = true;
+
+                const correct = appState.currentQuestion.romaji;
+                const feedbackArea = document.getElementById('feedback-area');
+                const feedbackMsg = document.getElementById('feedback-message');
+
+                if (userVal === correct) {
+                    appState.score++;
+                    input.className = 'w-full border-2 border-emerald-500 bg-emerald-50/50 text-emerald-700 rounded-2xl px-5 py-4 text-center text-xl font-semibold transition-all';
+                    feedbackMsg.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i> <span class="text-emerald-700">Benar! Hebat!</span>`;
+                } else {
+                    input.className = 'w-full border-2 border-rose-500 bg-rose-50/50 text-rose-700 rounded-2xl px-5 py-4 text-center text-xl font-semibold transition-all';
+                    feedbackMsg.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-500 text-xl"></i> <span class="text-rose-700">Kurang tepat, jawaban: <b>${correct}</b></span>`;
+                }
+
+                document.getElementById('current-score').innerText = appState.score;
+                feedbackArea.classList.remove('hidden');
+            },
+
+            nextQuestion() {
+                appState.currentIndex++;
+                if (appState.currentIndex < appState.questions.length) {
+                    this.loadQuestion();
+                } else {
+                    this.showResult();
+                }
+            },
+
+            showResult() {
+                document.getElementById('quiz-view').classList.add('hidden');
+                document.getElementById('header-stats').classList.add('hidden');
+                document.getElementById('header-stats').classList.remove('flex');
+                document.getElementById('result-view').classList.remove('hidden');
+
+                const total = appState.questions.length;
+                const score = appState.score;
+                const percentage = Math.round((score / total) * 100);
+
+                document.getElementById('final-score').innerText = `${score}/${total}`;
+                document.getElementById('final-accuracy').innerText = `${percentage}%`;
+
+                const subtitle = document.getElementById('result-subtitle');
+                if (percentage === 100) {
+                    subtitle.innerText = 'Luar biasa! Sempurna! Kamu sudah sangat mahir.';
+                } else if (percentage >= 70) {
+                    subtitle.innerText = 'Kerja bagus! Pemahaman kana kamu sudah sangat baik.';
+                } else {
+                    subtitle.innerText = 'Terus tingkatkan latihan agar semakin lancar ya!';
+                }
+            },
+
+            restartQuiz() {
+                this.startQuiz();
+            },
+
+            returnToMenu() {
+                document.getElementById('quiz-view').classList.add('hidden');
+                document.getElementById('result-view').classList.add('hidden');
+                document.getElementById('header-stats').classList.add('hidden');
+                document.getElementById('header-stats').classList.remove('flex');
+                document.getElementById('menu-view').classList.remove('hidden');
+            }
+        };
+    </script>
+</body>
+</html>
